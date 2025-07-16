@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم جامع مدیریت شجره‌نامه خانوادگی</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            width: calc(100% - 40px);
+            box-sizing: border-box;
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+        h1 {
+            font-size: 2.8em;
+            padding-bottom: 15px;
+            color: #4a00e0; /* Deep purple */
+        }
+        h2 {
+            font-size: 2em;
+            margin-top: 40px;
+            padding-bottom: 10px;
+            color: #6a1b9a; /* Medium purple */
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="password"],
+        .form-group select,
+        .form-group input[type="file"] {
+            width: calc(100% - 24px);
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fdfdfd;
+        }
+        .form-group input[type="text"]:focus,
+        .form-group input[type="number"]:focus,
+        .form-group input[type="password"]:focus,
+        .form-group select:focus,
+        .form-group input[type="file"]:focus {
+            border-color: #8e24aa; /* Purple */
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(142, 36, 170, 0.2);
+        }
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            margin-left: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+        .btn-primary {
+            background-color: #8e24aa; /* Purple */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #6a1b9a; /* Darker purple */
+        }
+        .btn-success {
+            background-color: #43a047; /* Green */
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #388e3c; /* Darker green */
+        }
+        .btn-danger {
+            background-color: #e53935; /* Red */
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c62828; /* Darker red */
+        }
+        .btn-secondary {
+            background-color: #757575; /* Gray */
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #616161; /* Darker gray */
+        }
+        .btn-info {
+            background-color: #039be5; /* Light blue */
+            color: white;
+        }
+        .btn-info:hover {
+            background-color: #0277bd; /* Darker light blue */
+        }
+        .btn-group {
+            margin-top: 25px;
+            text-align: center;
+        }
+        .member-list {
+            margin-top: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .member-list table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        .member-list th, .member-list td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .member-list th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+            color: #444;
+        }
+        .member-list tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+        .member-list tr:hover {
+            background-color: #f0f8ff;
+        }
+        .member-list .actions button {
+            margin-left: 8px;
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+        .autocomplete-container {
+            position: relative;
+        }
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #ddd;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #fff;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .autocomplete-item {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95em;
+        }
+        .autocomplete-item:hover {
+            background-color: #f0f0f0;
+        }
+        .autocomplete-item.active {
+            background-color: #8e24aa;
+            color: white;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .message.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+        .message.error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+        .message.info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #90caf9;
+        }
+        .security-warning {
+            background-color: #fff3e0;
+            color: #e65100;
+            border: 1px solid #ffb74d;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Login Page Styles */
+        #login-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(to right, #8e24aa, #6a1b9a); /* Purple gradient */
+        }
+        .login-card {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        .login-card h2 {
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            color: #8e24aa;
+            border-bottom: none;
+        }
+        .login-card .form-group {
+            text-align: right;
+        }
+        .login-card input[type="text"],
+        .login-card input[type="password"] {
+            margin-bottom: 20px;
+        }
+        .login-card .btn-primary {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+        }
+
+        /* Tabs Styles */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+            background-color: #f8f8f8;
+            border-radius: 10px;
+            padding: 5px;
+            box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.05);
+        }
+        .tab-button {
+            padding: 15px 25px;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0 5px;
+        }
+        .tab-button.active {
+            color: white;
+            background-color: #8e24aa; /* Purple */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        .tab-button:hover:not(.active) {
+            color: #8e24aa;
+            background-color: #f0f0f0;
+        }
+        .tab-content {
+            padding: 20px 0;
+        }
+
+        /* Chart Tab Styles */
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+            overflow-x: auto;
+            min-height: 400px;
+        }
+        .chart-level {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            position: relative;
+            width: 100%;
+        }
+        .chart-node {
+            background-color: #e0f7fa; /* Light Cyan */
+            border: 2px solid #00bcd4; /* Cyan */
+            border-radius: 10px;
+            padding: 12px 18px;
+            margin: 10px;
+            text-align: center;
+            min-width: 160px;
+            max-width: 200px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .chart-node:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+        .chart-node.male { background-color: #e3f2fd; border-color: #2196f3; color: #1565c0; } /* Light Blue */
+        .chart-node.female { background-color: #fce4ec; border-color: #e91e63; color: #c2185b; } /* Light Pink */
+        .chart-node.selected { background-color: #c8e6c9; border-color: #4caf50; color: #2e7d32; font-size: 1.1em; } /* Light Green */
+
+        .chart-node .name {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+        .chart-node .details {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .chart-node.male .details { color: #42a5f5; }
+        .chart-node.female .details { color: #ec407a; }
+        .chart-node.selected .details { color: #66bb6a; }
+
+        /* Connectors */
+        .connector-line {
+            position: absolute;
+            background-color: #9e9e9e;
+            z-index: 0;
+        }
+        .vertical-line {
+            width: 2px;
+            height: 30px; /* Standard vertical spacing */
+            background-color: #607d8b;
+            margin: 0 auto;
+        }
+        .horizontal-line {
+            height: 2px;
+            background-color: #607d8b;
+            width: 100%;
+        }
+        .junction {
+            width: 10px;
+            height: 10px;
+            background-color: #607d8b;
+            border-radius: 50%;
+            margin: -4px auto; /* Center the dot */
+        }
+        .level-connector {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-top: -10px; /* Overlap with nodes */
+            margin-bottom: -10px;
+        }
+        .level-connector .branch {
+            width: 50%;
+            height: 2px;
+            background-color: #607d8b;
+        }
+        .level-connector .center-vertical {
+            width: 2px;
+            height: 20px;
+            background-color: #607d8b;
+        }
+        .spouse-line {
+            width: 40px;
+            height: 2px;
+            background-color: #e91e63; /* Pink for spouse */
+            margin: 0 10px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px auto;
+            }
+            h1 {
+                font-size: 2.2em;
+            }
+            h2 {
+                font-size: 1.7em;
+            }
+            .btn {
+                padding: 10px 15px;
+                font-size: 1em;
+                margin-left: 5px;
+            }
+            .tab-button {
+                padding: 10px 15px;
+                font-size: 0.9em;
+                margin: 0 2px;
+            }
+            .form-group input, .form-group select {
+                width: 100%;
+            }
+            .member-list table {
+                min-width: 600px;
+            }
+            .chart-node {
+                min-width: 120px;
+                max-width: 160px;
+                padding: 10px 15px;
+                margin: 8px;
+            }
+            .chart-node .name {
+                font-size: 1.1em;
+            }
+            .chart-node .details {
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="login-page">
+        <div class="login-card">
+            <h2>ورود به پنل مدیریت</h2>
+            <div id="login-message" class="message hidden"></div>
+            <div class="form-group">
+                <label for="username">نام کاربری:</label>
+                <input type="text" id="username" placeholder="نام کاربری">
+            </div>
+            <div class="form-group">
+                <label for="password">رمز عبور:</label>
+                <input type="password" id="password" placeholder="رمز عبور">
+            </div>
+            <button class="btn btn-primary" id="login-btn">ورود</button>
+        </div>
+    </div>
+
+    <div id="main-app" class="container hidden">
+        <h1>سیستم جامع مدیریت شجره‌نامه خانوادگی</h1>
+        <div class="security-warning">
+            <p><strong>هشدار امنیتی:</strong> این برنامه به صورت مستقل در مرورگر شما کار می‌کند. تغییرات اعمال شده ابتدا فقط در مرورگر شما ذخیره می‌شوند. برای ذخیره دائمی روی هاست و قابل مشاهده بودن برای دیگران، باید فایل <code>data.json</code> را دانلود و به صورت دستی آپلود کنید.</p>
+            <p>سیستم ورود و مدیریت نیز کاملاً سمت کلاینت است و برای اطلاعات حساس توصیه نمی‌شود.</p>
+        </div>
+
+        <div id="message-area" class="message hidden"></div>
+
+        <div class="tabs">
+            <button class="tab-button active" data-tab="manage-tab">مدیریت اعضا</button>
+            <button class="tab-button" data-tab="data-tab">بانک اطلاعات</button>
+            <button class="tab-button" data-tab="chart-tab">نمودار خانواده</button>
+            <button class="btn btn-info" id="import-data-btn" style="margin-right: auto;">وارد کردن داده‌ها (JSON)</button>
+            <input type="file" id="import-file-input" accept=".json" class="hidden">
+            <button class="btn btn-info" id="export-data-btn" style="margin-right: 10px;">دانلود داده‌ها (JSON)</button>
+            <button class="btn btn-danger" id="logout-btn" style="margin-right: 10px;">خروج</button>
+        </div>
+
+        <div id="manage-tab" class="tab-content">
+            <h2>مدیریت اعضا</h2>
+            <form id="member-form">
+                <input type="hidden" id="member-id">
+
+                <div class="form-group">
+                    <label for="full-name">نام کامل:</label>
+                    <input type="text" id="full-name" required placeholder="مثال: محمد بلیدئی">
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">جنسیت:</label>
+                    <select id="gender">
+                        <option value="مرد">مرد</option>
+                        <option value="زن">زن</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="birth-year">سال تولد (اختیاری):</label>
+                    <input type="number" id="birth-year" placeholder="مثال: 1360">
+                </div>
+
+                <div class="form-group autocomplete-container">
+                    <label for="father-name">پدر (اختیاری):</label>
+                    <input type="text" id="father-name" placeholder="نام پدر را جستجو کنید...">
+                    <input type="hidden" id="father-id">
+                    <div id="father-autocomplete-list" class="autocomplete-items hidden"></div>
+                </div>
+
+                <div class="form-group autocomplete-container">
+                    <label for="mother-name">مادر (اختیاری):</label>
+                    <input type="text" id="mother-name" placeholder="نام مادر را جستجو کنید...">
+                    <input type="hidden" id="mother-id">
+                    <div id="mother-autocomplete-list" class="autocomplete-items hidden"></div>
+                </div>
+
+                <div class="form-group autocomplete-container">
+                    <label for="spouse1-name">همسر اول (اختیاری):</label>
+                    <input type="text" id="spouse1-name" placeholder="نام همسر اول را جستجو کنید...">
+                    <input type="hidden" id="spouse1-id">
+                    <div id="spouse1-autocomplete-list" class="autocomplete-items hidden"></div>
+                </div>
+
+                <div class="form-group autocomplete-container">
+                    <label for="spouse2-name">همسر دوم (اختیاری):</label>
+                    <input type="text" id="spouse2-name" placeholder="نام همسر دوم را جستجو کنید...">
+                    <input type="hidden" id="spouse2-id">
+                    <div id="spouse2-autocomplete-list" class="autocomplete-items hidden"></div>
+                </div>
+
+                <div class="form-group autocomplete-container">
+                    <label for="spouse3-name">همسر سوم (اختیاری):</label>
+                    <input type="text" id="spouse3-name" placeholder="نام همسر سوم را جستجو کنید...">
+                    <input type="hidden" id="spouse3-id">
+                    <div id="spouse3-autocomplete-list" class="autocomplete-items hidden"></div>
+                </div>
+
+                <div class="form-group autocomplete-container">
+                    <label for="spouse4-name">همسر چهارم (اختیاری):</label>
+                    <input type="text" id="spouse4-name" placeholder="نام همسر چهارم را جستجو کنید...">
+                    <input type="hidden" id="spouse4-id">
+                    <div id="spouse4-autocomplete-list" class="autocomplete-items hidden"></div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary" id="save-btn">ذخیره عضو</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-edit-btn" style="display: none;">لغو ویرایش</button>
+                </div>
+            </form>
+
+            <h2>لیست اعضای خانواده</h2>
+            <div class="member-list">
+                <table id="family-table">
+                    <thead>
+                        <tr>
+                            <th>کد</th>
+                            <th>نام کامل</th>
+                            <th>جنسیت</th>
+                            <th>پدر</th>
+                            <th>مادر</th>
+                            <th>همسران</th>
+                            <th>سال تولد</th>
+                            <th class="admin-only">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Members will be rendered here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="data-tab" class="tab-content hidden">
+            <h2>بانک اطلاعات خانواده</h2>
+            <div class="member-list">
+                <table id="data-table">
+                    <thead>
+                        <tr>
+                            <th>کد</th>
+                            <th>نام کامل</th>
+                            <th>جنسیت</th>
+                            <th>پدر</th>
+                            <th>مادر</th>
+                            <th>همسران</th>
+                            <th>سال تولد</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be rendered here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="chart-tab" class="tab-content hidden">
+            <h2>نمودار خانواده</h2>
+            <div class="form-group">
+                <label for="chart-person-select">شخص مرکزی نمودار:</label>
+                <select id="chart-person-select" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ddd;">
+                    <option value="">یک شخص را انتخاب کنید</option>
+                </select>
+            </div>
+            <div id="family-chart-display" class="chart-container">
+                <p style="text-align: center; color: #666;">یک شخص را از لیست بالا انتخاب کنید تا نمودار نمایش داده شود.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration (Insecure: For demonstration only) ---
+        // شما می توانید نام کاربری و رمز عبور را در اینجا تغییر دهید.
+        // به یاد داشته باشید که این اطلاعات در کد سمت کلاینت قابل مشاهده هستند.
+        const USERS = {
+            "admin": "admin123", // نام کاربری و رمز عبور مدیر (دسترسی کامل)
+            "guest": "guest123"  // نام کاربری و رمز عبور مهمان (فقط مشاهده و اضافه کردن عضو جدید)
+        };
+
+        // --- Global Variables ---
+        let familyData = [];
+        let editingPersonId = null;
+        let currentUserRole = null; // 'admin' or 'guest'
+
+        // --- DOM Elements ---
+        const loginPage = document.getElementById('login-page');
+        const mainApp = document.getElementById('main-app');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('login-btn');
+        const loginMessage = document.getElementById('login-message');
+        const logoutBtn = document.getElementById('logout-btn');
+        const exportDataBtn = document.getElementById('export-data-btn');
+        const importDataBtn = document.getElementById('import-data-btn');
+        const importFileInput = document.getElementById('import-file-input');
+
+        const messageArea = document.getElementById('message-area');
+        const tabsContainer = document.querySelector('.tabs');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const tabButtons = document.querySelectorAll('.tab-button');
+
+        const memberForm = document.getElementById('member-form');
+        const memberIdInput = document.getElementById('member-id');
+        const fullNameInput = document.getElementById('full-name');
+        const genderSelect = document.getElementById('gender');
+        const birthYearInput = document.getElementById('birth-year');
+        const familyTableBody = document.querySelector('#family-table tbody');
+        const dataTableBody = document.querySelector('#data-table tbody');
+        const saveBtn = document.getElementById('save-btn');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+
+        const chartPersonSelect = document.getElementById('chart-person-select');
+        const familyChartDisplay = document.getElementById('family-chart-display');
+
+        const autocompleteInputs = {
+            father: { name: document.getElementById('father-name'), id: document.getElementById('father-id'), list: document.getElementById('father-autocomplete-list') },
+            mother: { name: document.getElementById('mother-name'), id: document.getElementById('mother-id'), list: document.getElementById('mother-autocomplete-list') },
+            spouse1: { name: document.getElementById('spouse1-name'), id: document.getElementById('spouse1-id'), list: document.getElementById('spouse1-autocomplete-list') },
+            spouse2: { name: document.getElementById('spouse2-name'), id: document.getElementById('spouse2-id'), list: document.getElementById('spouse2-autocomplete-list') },
+            spouse3: { name: document.getElementById('spouse3-name'), id: document.getElementById('spouse3-id'), list: document.getElementById('spouse3-autocomplete-list') },
+            spouse4: { name: document.getElementById('spouse4-name'), id: document.getElementById('spouse4-id'), list: document.getElementById('spouse4-autocomplete-list') },
+        };
+
+        // --- Utility Functions ---
+
+        function showMessage(message, type = 'success') {
+            messageArea.textContent = message;
+            messageArea.className = `message ${type}`;
+            messageArea.classList.remove('hidden');
+            setTimeout(() => {
+                messageArea.classList.add('hidden');
+            }, 5000);
+        }
+
+        function showLoginMessage(message, type = 'error') {
+            loginMessage.textContent = message;
+            loginMessage.className = `message ${type}`;
+            loginMessage.classList.remove('hidden');
+            setTimeout(() => {
+                loginMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        function generateUniqueId() {
+            const maxId = familyData.reduce((max, p) => Math.max(max, parseInt(p.id) || 0), 0);
+            return (maxId + 1).toString();
+        }
+
+        function findPersonById(id) {
+            return familyData.find(p => p.id === id);
+        }
+
+        function getPersonNameById(id) {
+            const person = findPersonById(id);
+            return person ? person.fullName : `(ناشناس - کد: ${id})`;
+        }
+
+        function clearForm() {
+            memberIdInput.value = '';
+            fullNameInput.value = '';
+            genderSelect.value = 'مرد';
+            birthYearInput.value = '';
+            for (const key in autocompleteInputs) {
+                autocompleteInputs[key].name.value = '';
+                autocompleteInputs[key].id.value = '';
+                autocompleteInputs[key].list.classList.add('hidden');
+            }
+            editingPersonId = null;
+            saveBtn.textContent = 'ذخیره عضو';
+            cancelEditBtn.style.display = 'none';
+        }
+
+        // --- Authentication ---
+
+        function handleLogin() {
+            const username = usernameInput.value;
+            const password = passwordInput.value;
+
+            if (USERS[username] === password) {
+                currentUserRole = username;
+                loginPage.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                applyRolePermissions();
+                loadFamilyData(); // Load data after successful login
+                showMessage(`خوش آمدید، ${username}!`, 'success');
+            } else {
+                showLoginMessage('نام کاربری یا رمز عبور اشتباه است.', 'error');
+            }
+        }
+
+        function handleLogout() {
+            currentUserRole = null;
+            mainApp.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+            usernameInput.value = '';
+            passwordInput.value = '';
+            showLoginMessage('با موفقیت خارج شدید.', 'info');
+        }
+
+        function applyRolePermissions() {
+            const adminOnlyElements = document.querySelectorAll('.admin-only');
+            if (currentUserRole === 'admin') {
+                adminOnlyElements.forEach(el => el.classList.remove('hidden'));
+                memberForm.querySelectorAll('input, select, button').forEach(el => el.removeAttribute('disabled'));
+                saveBtn.removeAttribute('disabled');
+                exportDataBtn.classList.remove('hidden');
+                importDataBtn.classList.remove('hidden');
+            } else if (currentUserRole === 'guest') {
+                adminOnlyElements.forEach(el => el.classList.add('hidden'));
+                // Allow adding new members for guests, but disable editing/deleting existing ones
+                memberForm.querySelectorAll('input, select').forEach(el => el.removeAttribute('disabled'));
+                saveBtn.removeAttribute('disabled'); // Allow adding
+                cancelEditBtn.setAttribute('disabled', 'true'); // Disable cancel edit for guests
+                exportDataBtn.classList.add('hidden'); // Guests cannot export
+                importDataBtn.classList.add('hidden'); // Guests cannot import
+            } else { // Not logged in
+                adminOnlyElements.forEach(el => el.classList.add('hidden')); // Should not be visible anyway
+                memberForm.querySelectorAll('input, select, button').forEach(el => el.setAttribute('disabled', 'true'));
+                saveBtn.setAttribute('disabled', 'true');
+                exportDataBtn.classList.add('hidden');
+                importDataBtn.classList.add('hidden');
+            }
+            renderFamilyTable(); // Re-render to apply action button visibility
+            renderDataTable(); // Re-render data table
+        }
+
+        // --- Data Management (Local Storage & File Download/Upload) ---
+
+        async function loadFamilyData() {
+            try {
+                // Try to load from local storage first (user's unsaved changes)
+                const storedData = localStorage.getItem('familyTreeData');
+                if (storedData) {
+                    familyData = JSON.parse(storedData);
+                    showMessage('داده‌ها از حافظه محلی مرورگر بارگذاری شدند.', 'info');
+                } else {
+                    // If no local storage data, try to fetch from data.json on host
+                    const response = await fetch('data.json');
+                    if (response.ok) {
+                        familyData = await response.json();
+                        localStorage.setItem('familyTreeData', JSON.stringify(familyData)); // Save to local storage for future sessions
+                        showMessage('داده‌ها از فایل data.json بارگذاری شدند.', 'success');
+                    } else {
+                        throw new Error('فایل data.json یافت نشد یا قابل بارگذاری نیست.');
+                    }
+                }
+            } catch (error) {
+                console.warn(error.message);
+                // Fallback to initial dummy data if neither local storage nor data.json is available
+                familyData = [
+                    { "id": "1", "fullName": "صلاح الدین بلیدئی", "gender": "مرد", "fatherId": "5", "motherId": "6" },
+                    { "id": "2", "fullName": "مرتضی بلیدئی", "gender": "مرد", "fatherId": "5", "motherId": "6" },
+                    { "id": "3", "fullName": "ثریا بلیدئی", "gender": "زن", "fatherId": "5", "motherId": "6" },
+                    { "id": "4", "fullName": "سها بلیدئی", "gender": "زن", "fatherId": "5", "motherId": "6" },
+                    { "id": "5", "fullName": "مسعود بلیدئی", "gender": "مرد", "fatherId": "7", "motherId": "8", "spouse1Id": "6", "birthYear": 1363 },
+                    { "id": "6", "fullName": "زهرا بلیدئی", "gender": "زن", "fatherId": "10", "motherId": "9", "spouse1Id": "5", "birthYear": 1374 },
+                    { "id": "7", "fullName": "نصیرخان بلیدئی", "gender": "مرد", "fatherId": "11", "motherId": "12", "spouse1Id": "8", "birthYear": 1330 },
+                    { "id": "8", "fullName": "گل بی بی ملازاده", "gender": "زن", "fatherId": "13", "motherId": "14", "spouse1Id": "7" },
+                    { "id": "9", "fullName": "نورالنساء ملازاده", "gender": "زن", "fatherId": "13", "motherId": "14", "spouse1Id": "10" },
+                    { "id": "10", "fullName": "خلیل بلیدئی", "gender": "مرد", "fatherId": "15", "motherId": "16", "spouse1Id": "9" },
+                    { "id": "11", "fullName": "میر کمال خان", "gender": "مرد", "spouse1Id": "12" },
+                    { "id": "12", "fullName": "بی بی نور بی بی ملازاده", "gender": "زن", "spouse1Id": "11" },
+                    { "id": "13", "fullName": "مولوی عبدالمجید ملازاده", "gender": "مرد", "fatherId": "17", "motherId": "18", "spouse1Id": "14" },
+                    { "id": "14", "fullName": "بی بی نسیمه بلیدئی", "gender": "زن", "fatherId": "58", "motherId": "59", "spouse1Id": "13" },
+                    { "id": "15", "fullName": "پیر اسحق بلیدئی", "gender": "مرد", "spouse1Id": "16" },
+                    { "id": "16", "fullName": "بی بی خدیجه بلیدئی", "gender": "زن", "fatherId": "58", "motherId": "59", "spouse1Id": "15" },
+                    { "id": "17", "fullName": "مولوی عبدالله ملازاده", "gender": "مرد", "fatherId": "20", "motherId": "21", "spouse1Id": "18" },
+                    { "id": "18", "fullName": "بی بی در بی بی جژانی", "gender": "زن", "fatherId": "19", "motherId": "22", "spouse1Id": "17" },
+                    { "id": "19", "fullName": "شهداد جژانی", "gender": "مرد", "spouse1Id": "22" },
+                    { "id": "20", "fullName": "ملا محمد ملازاده", "gender": "مرد", "fatherId": "27", "motherId": "23", "spouse1Id": "21" },
+                    { "id": "21", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "20" },
+                    { "id": "22", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "19" },
+                    { "id": "23", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "27" },
+                    { "id": "24", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "28" },
+                    { "id": "25", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "29" },
+                    { "id": "26", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "30" },
+                    { "id": "27", "fullName": "فقیرمحمد ملازاده", "gender": "مرد", "fatherId": "28", "motherId": "24", "spouse1Id": "23" },
+                    { "id": "28", "fullName": "پیر مسعود", "gender": "مرد", "spouse1Id": "24" },
+                    { "id": "29", "fullName": "محمد جژانی", "gender": "مرد", "fatherId": "19", "motherId": "22", "spouse1Id": "25" },
+                    { "id": "30", "fullName": "دوست محمد جژانی", "gender": "مرد", "fatherId": "29", "motherId": "25", "spouse1Id": "26" },
+                    { "id": "31", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "32" },
+                    { "id": "32", "fullName": "گل محمد جژانی", "gender": "مرد", "fatherId": "19", "motherId": "22", "spouse1Id": "31" },
+                    { "id": "33", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "34" },
+                    { "id": "34", "fullName": "حاجی فاروقی", "gender": "مرد", "fatherId": "32", "motherId": "31", "spouse1Id": "33" },
+                    { "id": "35", "fullName": "سید احمد شاه یوسف زهی", "gender": "مرد", "spouse1Id": "36" },
+                    { "id": "36", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "35" },
+                    { "id": "37", "fullName": "سیدعبدالمجید یوسف زهی", "gender": "مرد", "fatherId": "35", "motherId": "36", "spouse1Id": "38" },
+                    { "id": "38", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "37" },
+                    { "id": "39", "fullName": "قاضی عبدالصمد یوسف زهی", "gender": "مرد", "fatherId": "37", "motherId": "38", "spouse1Id": "40" },
+                    { "id": "40", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "39" },
+                    { "id": "41", "fullName": "قاضی عبدالقادر یوسف زهی", "gender": "مرد", "fatherId": "39", "motherId": "40", "spouse1Id": "42", "spouse2Id": "43" },
+                    { "id": "42", "fullName": "بی بی عایشه یوسف زهی", "gender": "زن", "spouse1Id": "41" },
+                    { "id": "43", "fullName": "گل بی بی یوسف زهی", "gender": "زن", "spouse1Id": "41" },
+                    { "id": "44", "fullName": "بی بی جان بی بی یوسف زهی", "gender": "زن", "fatherId": "39", "motherId": "40", "spouse1Id": "45" },
+                    { "id": "45", "fullName": "نامشخص", "gender": "مرد", "spouse1Id": "44" },
+                    { "id": "46", "fullName": "سعدالله روانبد", "gender": "مرد", "fatherId": "41", "motherId": "42", "spouse1Id": "48" },
+                    { "id": "47", "fullName": "ساره روانبد", "gender": "زن", "fatherId": "41", "motherId": "42", "spouse1Id": "49" },
+                    { "id": "48", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "46" },
+                    { "id": "49", "fullName": "نامشخص", "gender": "مرد", "spouse1Id": "47" },
+                    { "id": "50", "fullName": "احمدجان یوسف زهی", "gender": "مرد", "fatherId": "41", "motherId": "43", "spouse1Id": "51" },
+                    { "id": "51", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "50" },
+                    { "id": "52", "fullName": "عبدالصمد یوسف زهی", "gender": "مرد", "fatherId": "41", "motherId": "43", "spouse1Id": "53" },
+                    { "id": "53", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "52" },
+                    { "id": "54", "fullName": "عبدالمجید مجیدی", "gender": "مرد", "fatherId": "41", "motherId": "43", "spouse1Id": "55" },
+                    { "id": "55", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "54" },
+                    { "id": "56", "fullName": "ملا عبدالله یوسف زهی", "gender": "مرد", "fatherId": "41", "motherId": "43", "spouse1Id": "57" },
+                    { "id": "57", "fullName": "بی بی خیر بی بی ملازاده", "gender": "زن", "fatherId": "17", "motherId": "18", "spouse1Id": "56" },
+                    { "id": "58", "fullName": "ملا محمد یوسف زهی", "gender": "مرد", "fatherId": "41", "motherId": "43", "spouse1Id": "59" },
+                    { "id": "59", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "58" },
+                    { "id": "60", "fullName": "بی بی هاجره یوسف زهی", "gender": "زن", "fatherId": "41", "motherId": "43", "spouse1Id": "61" },
+                    { "id": "61", "fullName": "نامشخص", "gender": "مرد", "spouse1Id": "60" },
+                    { "id": "62", "fullName": "جمیله روانبد", "gender": "زن", "fatherId": "49", "motherId": "47" },
+                    { "id": "63", "fullName": "امینه روانبد", "gender": "زن", "fatherId": "49", "motherId": "47" },
+                    { "id": "64", "fullName": "نعیمه روانبد", "gender": "زن", "fatherId": "49", "motherId": "47" },
+                    { "id": "65", "fullName": "حمیده روانبد", "gender": "زن", "fatherId": "49", "motherId": "47" },
+                    { "id": "66", "fullName": "نورالنساء روانبد", "gender": "زن", "fatherId": "49", "motherId": "47" },
+                    { "id": "67", "fullName": "عصمت روانبد", "gender": "زن", "fatherId": "49", "motherId": "47" },
+                    { "id": "68", "fullName": "عبیدالله روانبد", "gender": "مرد", "fatherId": "49", "motherId": "47" },
+                    { "id": "69", "fullName": "عبدالرحمن روانبد", "gender": "مرد", "fatherId": "49", "motherId": "47" },
+                    { "id": "70", "fullName": "خلیل احمد روانبد", "gender": "مرد", "fatherId": "49", "motherId": "47" },
+                    { "id": "71", "fullName": "محمد انور یوسف زهی (پاکستان)", "gender": "مرد", "fatherId": "50", "motherId": "51" },
+                    { "id": "72", "fullName": "محمد شفیق یوسف زهی (پاکستان)", "gender": "مرد", "fatherId": "50", "motherId": "51" },
+                    { "id": "73", "fullName": "محمد رفیق یوسف زهی (پاکستان)", "gender": "مرد", "fatherId": "50", "motherId": "51" },
+                    { "id": "74", "fullName": "سعید اقبال یوسف زهی (پاکستان)", "gender": "مرد", "fatherId": "50", "motherId": "51" },
+                    { "id": "75", "fullName": "بی بی رضیه یوسف زهی (پاکستان)", "gender": "زن", "fatherId": "50", "motherId": "51" },
+                    { "id": "76", "fullName": "بی بی ثریا یوسف زهی (پاکستان)", "gender": "زن", "fatherId": "50", "motherId": "51" },
+                    { "id": "77", "fullName": "قاضی فرمان الله یوسف زهی", "gender": "مرد", "fatherId": "52", "motherId": "53" },
+                    { "id": "78", "fullName": "سبحان علی یوسف زهی", "gender": "مرد", "fatherId": "52", "motherId": "53" },
+                    { "id": "79", "fullName": "محموده یوسف زهی", "gender": "زن", "fatherId": "52", "motherId": "53" },
+                    { "id": "80", "fullName": "رشیده یوسف زهی", "gender": "زن", "fatherId": "52", "motherId": "53" },
+                    { "id": "81", "fullName": "رحیمه یوسف زهی", "gender": "زن", "fatherId": "52", "motherId": "53" },
+                    { "id": "82", "fullName": "عبدالجلیل بلیدئی", "gender": "مرد", "fatherId": "58", "motherId": "59" },
+                    { "id": "83", "fullName": "عبدالوهاب بلیدئی", "gender": "مرد", "fatherId": "58", "motherId": "59" },
+                    { "id": "84", "fullName": "عبدالقادر بلیدئی", "gender": "مرد", "fatherId": "58", "motherId": "59" },
+                    { "id": "85", "fullName": "بی بی آمنه بلیدئی", "gender": "زن", "fatherId": "58", "motherId": "59" },
+                    { "id": "86", "fullName": "منیر احمد مجیدی", "gender": "مرد", "fatherId": "54", "motherId": "55" },
+                    { "id": "87", "fullName": "عنایت الله مجیدی", "gender": "مرد", "fatherId": "54", "motherId": "55" },
+                    { "id": "88", "fullName": "امان الله مجیدی", "gender": "مرد", "fatherId": "54", "motherId": "55" },
+                    { "id": "89", "fullName": "زیب النساء مجیدی", "gender": "زن", "fatherId": "54", "motherId": "55" },
+                    { "id": "90", "fullName": "بلقیص مجیدی", "gender": "زن", "fatherId": "54", "motherId": "55" },
+                    { "id": "91", "fullName": "بدرالنساء مجیدی", "gender": "زن", "fatherId": "54", "motherId": "55" },
+                    { "id": "92", "fullName": "مهرالنساء مجیدی", "gender": "زن", "fatherId": "54", "motherId": "55" },
+                    { "id": "93", "fullName": "صبیحه مجیدی", "gender": "زن", "fatherId": "54", "motherId": "55" },
+                    { "id": "94", "fullName": "برکت الله بلیدئی", "gender": "مرد", "fatherId": "56", "motherId": "57" },
+                    { "id": "95", "fullName": "ملک خاتون بلیدئی", "gender": "زن", "fatherId": "56", "motherId": "57" },
+                    { "id": "96", "fullName": "صاحب خاتون بلیدئی", "gender": "زن", "fatherId": "56", "motherId": "57" },
+                    { "id": "97", "fullName": "مهرافروز بلیدئی", "gender": "زن", "fatherId": "56", "motherId": "57" },
+                    { "id": "98", "fullName": "شکرالله بلیدئی", "gender": "مرد", "fatherId": "61", "motherId": "60" },
+                    { "id": "99", "fullName": "کندل بلیدئی", "gender": "مرد", "fatherId": "61", "motherId": "60" },
+                    { "id": "100", "fullName": "جان بی بی بلیدئی", "gender": "زن", "fatherId": "61", "motherId": "60" },
+                    { "id": "101", "fullName": "عبدالباسط بیجاد", "gender": "مرد", "fatherId": "46", "motherId": "48" },
+                    { "id": "102", "fullName": "عبدالواحد بیجاد", "gender": "مرد", "fatherId": "46", "motherId": "48" },
+                    { "id": "103", "fullName": "سعیده بیجاد", "gender": "زن", "fatherId": "46", "motherId": "48" },
+                    { "id": "104", "fullName": "ملا شیر محمد یوسف زهی", "gender": "مرد", "fatherId": "45", "motherId": "44", "spouse1Id": "107" },
+                    { "id": "105", "fullName": "بی بی آمنه یوسف زهی", "gender": "زن", "fatherId": "45", "motherId": "44", "spouse1Id": "113", "spouse2Id": "117" },
+                    { "id": "106", "fullName": "بی بی نور بی بی یوسف زهی", "gender": "زن", "fatherId": "45", "motherId": "44", "spouse1Id": "120" },
+                    { "id": "107", "fullName": "نامشخص", "gender": "زن", "spouse1Id": "104" },
+                    { "id": "108", "fullName": "عبدالمجید بن ملاشیرمحمد", "gender": "مرد", "fatherId": "104", "motherId": "107" },
+                    { "id": "109", "fullName": "اسحق بن ملاشیرمحمد", "gender": "مرد", "fatherId": "104", "motherId": "107" },
+                    { "id": "110", "fullName": "عبدالصمد بن ملاشیرمحمد", "gender": "مرد", "fatherId": "104", "motherId": "107" },
+                    { "id": "111", "fullName": "عزیز بن ملاشیرمحمد", "gender": "مرد", "fatherId": "104", "motherId": "107" },
+                    { "id": "112", "fullName": "نورجهان بنت ملاشیرمحمد", "gender": "زن", "fatherId": "104", "motherId": "107" },
+                    { "id": "113", "fullName": "قاضی یحیی (همسر بی بی آمنه)", "gender": "مرد", "spouse1Id": "105" },
+                    { "id": "114", "fullName": "بی بی عایشه(بنت قاضی یحیی)", "gender": "زن", "fatherId": "113", "motherId": "105" },
+                    { "id": "115", "fullName": "بی بی جان بی بی (بنت قاضی یحیی)", "gender": "زن", "fatherId": "113", "motherId": "105" },
+                    { "id": "116", "fullName": "بی بی مریم (بنت قاضی یحیی)", "gender": "زن", "fatherId": "113", "motherId": "105" },
+                    { "id": "117", "fullName": "ملا عبدالرحیم(همسر بی بی آمنه)", "gender": "مرد", "spouse1Id": "105" },
+                    { "id": "118", "fullName": "ملا مولا بخش بن ملارحیم", "gender": "مرد", "fatherId": "117", "motherId": "105" },
+                    { "id": "119", "fullName": "بی بی زینب بنت ملارحیم", "gender": "زن", "fatherId": "117", "motherId": "105" },
+                    { "id": "120", "fullName": "نامشخص", "gender": "مرد", "spouse1Id": "106" },
+                    { "id": "121", "fullName": "ملا حسین بن نور بی بی", "gender": "مرد", "fatherId": "120", "motherId": "106" },
+                    { "id": "122", "fullName": "بی بی رابعه بنت نور بی بی", "gender": "زن", "fatherId": "120", "motherId": "106" }
+                ];
+                localStorage.setItem('familyTreeData', JSON.stringify(familyData)); // Save to local storage
+                showMessage('فایل data.json یافت نشد. داده‌های پیش‌فرض بارگذاری شدند و در حافظه محلی ذخیره شدند.', 'error');
+            }
+            renderFamilyTable();
+            renderDataTable();
+            populateChartPersonSelect();
+        }
+
+        function saveFamilyDataToLocalStorage() {
+            localStorage.setItem('familyTreeData', JSON.stringify(familyData));
+        }
+
+        function exportFamilyData() {
+            const dataStr = JSON.stringify(familyData, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showMessage('فایل data.json برای دانلود آماده شد. لطفاً آن را روی هاست خود آپلود کنید تا تغییرات دائمی شوند.', 'info');
+        }
+
+        function importFamilyData(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData) && importedData.every(item => typeof item.id === 'string' && typeof item.fullName === 'string')) {
+                        familyData = importedData;
+                        saveFamilyDataToLocalStorage();
+                        renderFamilyTable();
+                        renderDataTable();
+                        populateChartPersonSelect();
+                        showMessage('داده‌ها با موفقیت از فایل JSON وارد شدند.', 'success');
+                    } else {
+                        throw new Error('فرمت فایل JSON نامعتبر است. لطفاً یک فایل JSON معتبر شجره‌نامه را انتخاب کنید.');
+                    }
+                } catch (error) {
+                    showMessage(`خطا در وارد کردن فایل: ${error.message}`, 'error');
+                    console.error('Error importing JSON:', error);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- Autocomplete Logic ---
+
+        function setupAutocomplete(inputElement, idElement, listElement, filterGender = null) {
+            let currentFocus = -1;
+            let blurTimeout;
+
+            inputElement.addEventListener('input', function() {
+                const val = this.value;
+                closeAllLists(this);
+                if (!val) {
+                    idElement.value = ''; // Clear ID if input is empty
+                    listElement.classList.add('hidden');
+                    return false;
+                }
+                currentFocus = -1;
+
+                listElement.innerHTML = ''; // Clear previous list
+                listElement.classList.remove('hidden');
+
+                let matches = familyData.filter(p => {
+                    const nameMatch = p.fullName.toLowerCase().includes(val.toLowerCase());
+                    const genderMatch = filterGender ? p.gender === filterGender : true;
+                    return nameMatch && genderMatch;
+                });
+
+                if (matches.length === 0) {
+                    listElement.classList.add('hidden');
+                    return;
+                }
+
+                matches.forEach(person => {
+                    let b = document.createElement('div');
+                    b.setAttribute('class', 'autocomplete-item');
+                    b.innerHTML = `<strong>${person.fullName.substr(0, val.length)}</strong>`;
+                    b.innerHTML += person.fullName.substr(val.length);
+                    b.innerHTML += `<input type='hidden' value='${person.fullName}' data-id='${person.id}'>`;
+                    b.addEventListener('click', function() {
+                        inputElement.value = this.getElementsByTagName('input')[0].value;
+                        idElement.value = this.getElementsByTagName('input')[0].getAttribute('data-id');
+                        closeAllLists();
+                    });
+                    listElement.appendChild(b);
+                });
+            });
+
+            inputElement.addEventListener('keydown', function(e) {
+                let x = listElement.querySelectorAll('.autocomplete-item');
+                if (x) {
+                    if (e.keyCode == 40) { // Arrow Down
+                        currentFocus++;
+                        addActive(x);
+                        if (x[currentFocus]) x[currentFocus].scrollIntoView({ block: 'nearest' });
+                    } else if (e.keyCode == 38) { // Arrow Up
+                        currentFocus--;
+                        addActive(x);
+                        if (x[currentFocus]) x[currentFocus].scrollIntoView({ block: 'nearest' });
+                    } else if (e.keyCode == 13) { // Enter
+                        e.preventDefault();
+                        if (currentFocus > -1) {
+                            if (x[currentFocus]) x[currentFocus].click();
+                        }
+                    }
+                }
+            });
+
+            inputElement.addEventListener('focus', function() {
+                clearTimeout(blurTimeout);
+                if (this.value) { // Show list on focus if there's already text
+                    this.dispatchEvent(new Event('input'));
+                }
+            });
+
+            inputElement.addEventListener('blur', function() {
+                blurTimeout = setTimeout(() => {
+                    closeAllLists(this);
+                }, 200); // Small delay to allow click on item
+            });
+
+            listElement.addEventListener('mousedown', function(e) {
+                e.preventDefault(); // Prevent input from losing focus when clicking inside dropdown
+            });
+
+            function addActive(x) {
+                if (!x) return false;
+                removeActive(x);
+                if (currentFocus >= x.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (x.length - 1);
+                x[currentFocus].classList.add('active');
+            }
+
+            function removeActive(x) {
+                for (let i = 0; i < x.length; i++) {
+                    x[i].classList.remove('active');
+                }
+            }
+
+            function closeAllLists(elmnt) {
+                const items = document.querySelectorAll('.autocomplete-items');
+                items.forEach(item => {
+                    if (item !== elmnt && item.parentNode.querySelector('input') !== elmnt) {
+                        item.classList.add('hidden');
+                    }
+                });
+            }
+        }
+
+        // --- CRUD Operations ---
+
+        function addOrUpdatePerson(event) {
+            event.preventDefault();
+
+            if (currentUserRole === 'guest' && editingPersonId) {
+                showMessage('شما اجازه ویرایش اعضای موجود را ندارید. فقط می‌توانید عضو جدید اضافه کنید.', 'error');
+                return;
+            }
+
+            const fullName = fullNameInput.value.trim();
+            const gender = genderSelect.value;
+            const birthYear = birthYearInput.value ? parseInt(birthYearInput.value) : undefined;
+            const fatherId = autocompleteInputs.father.id.value || undefined;
+            const motherId = autocompleteInputs.mother.id.value || undefined;
+            const spouse1Id = autocompleteInputs.spouse1.id.value || undefined;
+            const spouse2Id = autocompleteInputs.spouse2.id.value || undefined;
+            const spouse3Id = autocompleteInputs.spouse3.id.value || undefined;
+            const spouse4Id = autocompleteInputs.spouse4.id.value || undefined;
+
+            if (!fullName) {
+                showMessage('لطفاً نام کامل را وارد کنید.', 'error');
+                return;
+            }
+
+            let person = {};
+            if (editingPersonId) {
+                person = familyData.find(p => p.id === editingPersonId);
+                if (!person) {
+                    showMessage('خطا: عضو برای ویرایش پیدا نشد.', 'error');
+                    clearForm();
+                    return;
+                }
+                
+                // Store old spouse IDs for reciprocal updates
+                const oldSpouseIds = [person.spouse1Id, person.spouse2Id, person.spouse3Id, person.spouse4Id].filter(Boolean);
+
+                person.fullName = fullName;
+                person.gender = gender;
+                person.birthYear = birthYear;
+                person.fatherId = fatherId;
+                person.motherId = motherId;
+                person.spouse1Id = spouse1Id;
+                person.spouse2Id = spouse2Id;
+                person.spouse3Id = spouse3Id;
+                person.spouse4Id = spouse4Id;
+
+                // Update reciprocal spouse relationships
+                const newSpouseIds = [spouse1Id, spouse2Id, spouse3Id, spouse4Id].filter(Boolean);
+
+                // Remove current person from old spouses' lists if they are no longer spouses
+                oldSpouseIds.forEach(oldSpouseId => {
+                    if (!newSpouseIds.includes(oldSpouseId)) {
+                        const oldSpouse = findPersonById(oldSpouseId);
+                        if (oldSpouse) {
+                            if (oldSpouse.spouse1Id === person.id) oldSpouse.spouse1Id = undefined;
+                            if (oldSpouse.spouse2Id === person.id) oldSpouse.spouse2Id = undefined;
+                            if (oldSpouse.spouse3Id === person.id) oldSpouse.spouse3Id = undefined;
+                            if (oldSpouse.spouse4Id === person.id) oldSpouse.spouse4Id = undefined;
+                        }
+                    }
+                });
+
+                // Add current person to new spouses' lists
+                newSpouseIds.forEach(newSpouseId => {
+                    const newSpouse = findPersonById(newSpouseId);
+                    if (newSpouse && ![newSpouse.spouse1Id, newSpouse.spouse2Id, newSpouse.spouse3Id, newSpouse.spouse4Id].includes(person.id)) {
+                        if (!newSpouse.spouse1Id) newSpouse.spouse1Id = person.id;
+                        else if (!newSpouse.spouse2Id) newSpouse.spouse2Id = person.id;
+                        else if (!newSpouse.spouse3Id) newSpouse.spouse3Id = person.id;
+                        else if (!newSpouse.spouse4Id) newSpouse.spouse4Id = person.id;
+                    }
+                });
+
+                showMessage('اطلاعات عضو با موفقیت به‌روزرسانی شد.');
+            } else {
+                person = {
+                    id: generateUniqueId(),
+                    fullName,
+                    gender,
+                    birthYear,
+                    fatherId,
+                    motherId,
+                    spouse1Id,
+                    spouse2Id,
+                    spouse3Id,
+                    spouse4Id,
+                };
+                familyData.push(person);
+
+                // Update reciprocal spouse relationships for new person
+                const newSpouseIds = [spouse1Id, spouse2Id, spouse3Id, spouse4Id].filter(Boolean);
+                newSpouseIds.forEach(newSpouseId => {
+                    const spouse = findPersonById(newSpouseId);
+                    if (spouse && ![spouse.spouse1Id, spouse.spouse2Id, spouse.spouse3Id, spouse.spouse4Id].includes(person.id)) {
+                        if (!spouse.spouse1Id) spouse.spouse1Id = person.id;
+                        else if (!spouse.spouse2Id) spouse.spouse2Id = person.id;
+                        else if (!spouse.spouse3Id) spouse.spouse3Id = person.id;
+                        else if (!spouse.spouse4Id) spouse.spouse4Id = person.id;
+                    }
+                });
+                showMessage('عضو جدید با موفقیت اضافه شد.');
+            }
+
+            saveFamilyDataToLocalStorage();
+            renderFamilyTable();
+            renderDataTable();
+            populateChartPersonSelect();
+            clearForm();
+        }
+
+        function editPerson(id) {
+            if (currentUserRole !== 'admin') {
+                showMessage('شما اجازه ویرایش اعضا را ندارید.', 'error');
+                return;
+            }
+            const person = findPersonById(id);
+            if (person) {
+                editingPersonId = person.id;
+                memberIdInput.value = person.id;
+                fullNameInput.value = person.fullName;
+                genderSelect.value = person.gender;
+                birthYearInput.value = person.birthYear || '';
+
+                autocompleteInputs.father.name.value = person.fatherId ? getPersonNameById(person.fatherId) : '';
+                autocompleteInputs.father.id.value = person.fatherId || '';
+                autocompleteInputs.mother.name.value = person.motherId ? getPersonNameById(person.motherId) : '';
+                autocompleteInputs.mother.id.value = person.motherId || '';
+                autocompleteInputs.spouse1.name.value = person.spouse1Id ? getPersonNameById(person.spouse1Id) : '';
+                autocompleteInputs.spouse1.id.value = person.spouse1Id || '';
+                autocompleteInputs.spouse2.name.value = person.spouse2Id ? getPersonNameById(person.spouse2Id) : '';
+                autocompleteInputs.spouse2.id.value = person.spouse2Id || '';
+                autocompleteInputs.spouse3.name.value = person.spouse3Id ? getPersonNameById(person.spouse3Id) : '';
+                autocompleteInputs.spouse3.id.value = person.spouse3Id || '';
+                autocompleteInputs.spouse4.name.value = person.spouse4Id ? getPersonNameById(person.spouse4Id) : '';
+                autocompleteInputs.spouse4.id.value = person.spouse4Id || '';
+
+                saveBtn.textContent = 'ذخیره تغییرات';
+                cancelEditBtn.style.display = 'inline-block';
+            }
+        }
+
+        function deletePerson(id) {
+            if (currentUserRole !== 'admin') {
+                showMessage('شما اجازه حذف اعضا را ندارید.', 'error');
+                return;
+            }
+            const person = findPersonById(id);
+            if (person && confirm(`آیا مطمئن هستید که می‌خواهید ${person.fullName} را حذف کنید؟`)) {
+                // Remove this person from others' relationships
+                familyData.forEach(p => {
+                    if (p.fatherId === id) p.fatherId = undefined;
+                    if (p.motherId === id) p.motherId = undefined;
+                    if (p.spouse1Id === id) p.spouse1Id = undefined;
+                    if (p.spouse2Id === id) p.spouse2Id = undefined;
+                    if (p.spouse3Id === id) p.spouse3Id = undefined;
+                    if (p.spouse4Id === id) p.spouse4Id = undefined;
+                });
+
+                familyData = familyData.filter(p => p.id !== id);
+                saveFamilyDataToLocalStorage();
+                renderFamilyTable();
+                renderDataTable();
+                populateChartPersonSelect();
+                clearForm();
+                showMessage('عضو با موفقیت حذف شد.');
+            }
+        }
+
+        // --- Render Tables ---
+
+        function renderFamilyTable() {
+            familyTableBody.innerHTML = '';
+            if (familyData.length === 0) {
+                familyTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">هیچ عضوی یافت نشد.</td></tr>';
+                return;
+            }
+
+            familyData.forEach(person => {
+                const row = familyTableBody.insertRow();
+                row.insertCell().textContent = person.id;
+                row.insertCell().textContent = person.fullName;
+                row.insertCell().textContent = person.gender;
+                row.insertCell().textContent = person.fatherId ? getPersonNameById(person.fatherId) : '-';
+                row.insertCell().textContent = person.motherId ? getPersonNameById(person.motherId) : '-';
+
+                const spousesCell = row.insertCell();
+                const spouses = [person.spouse1Id, person.spouse2Id, person.spouse3Id, person.spouse4Id]
+                                .filter(Boolean)
+                                .map(id => getPersonNameById(id));
+                spousesCell.innerHTML = spouses.length > 0 ? spouses.join('<br>') : '-';
+
+                row.insertCell().textContent = person.birthYear || '-';
+
+                const actionsCell = row.insertCell();
+                actionsCell.classList.add('admin-only'); // Mark for role-based visibility
+
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'ویرایش';
+                editBtn.className = 'btn btn-secondary';
+                editBtn.onclick = () => editPerson(person.id);
+                actionsCell.appendChild(editBtn);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'حذف';
+                deleteBtn.className = 'btn btn-danger';
+                deleteBtn.onclick = () => deletePerson(person.id);
+                actionsCell.appendChild(deleteBtn);
+            });
+            applyRolePermissions(); // Re-apply permissions after rendering
+        }
+
+        function renderDataTable() {
+            dataTableBody.innerHTML = '';
+            if (familyData.length === 0) {
+                dataTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">هیچ عضوی یافت نشد.</td></tr>';
+                return;
+            }
+
+            familyData.forEach(person => {
+                const row = dataTableBody.insertRow();
+                row.insertCell().textContent = person.id;
+                row.insertCell().textContent = person.fullName;
+                row.insertCell().textContent = person.gender;
+                row.insertCell().textContent = person.fatherId ? getPersonNameById(person.fatherId) : '-';
+                row.insertCell().textContent = person.motherId ? getPersonNameById(person.motherId) : '-';
+
+                const spousesCell = row.insertCell();
+                const spouses = [person.spouse1Id, person.spouse2Id, person.spouse3Id, person.spouse4Id]
+                                .filter(Boolean)
+                                .map(id => getPersonNameById(id));
+                spousesCell.innerHTML = spouses.length > 0 ? spouses.join('<br>') : '-';
+
+                row.insertCell().textContent = person.birthYear || '-';
+            });
+        }
+
+        // --- Chart Tab Logic ---
+
+        function populateChartPersonSelect() {
+            chartPersonSelect.innerHTML = '<option value="">یک شخص را انتخاب کنید</option>';
+            familyData.forEach(person => {
+                const option = document.createElement('option');
+                option.value = person.id;
+                option.textContent = person.fullName;
+                chartPersonSelect.appendChild(option);
+            });
+        }
+
+        function renderFamilyChart(personId) {
+            familyChartDisplay.innerHTML = '';
+            if (!personId) {
+                familyChartDisplay.innerHTML = '<p style="text-align: center; color: #666;">یک شخص را از لیست بالا انتخاب کنید تا نمودار نمایش داده شود.</p>';
+                return;
+            }
+
+            const selectedPerson = findPersonById(personId);
+            if (!selectedPerson) {
+                familyChartDisplay.innerHTML = '<p style="text-align: center; color: #666;">شخص انتخاب شده یافت نشد.</p>';
+                return;
+            }
+
+            // Helper to create a person node
+            const createNode = (person, isSelected = false) => {
+                if (!person) return null;
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = `chart-node ${person.gender === 'مرد' ? 'male' : 'female'} ${isSelected ? 'selected' : ''}`;
+                nodeDiv.innerHTML = `
+                    <div class="name">${person.fullName}</div>
+                    <div class="details">${person.gender} ${person.birthYear ? `• متولد ${person.birthYear}` : ''}</div>
+                `;
+                return nodeDiv;
+            };
+
+            // Helper to create a level container
+            const createLevel = (className = '') => {
+                const levelDiv = document.createElement('div');
+                levelDiv.className = `chart-level ${className}`;
+                return levelDiv;
+            };
+
+            // Helper to create a vertical connector
+            const createVerticalConnector = () => {
+                const div = document.createElement('div');
+                div.className = 'vertical-line';
+                return div;
+            };
+
+            // Helper to create a horizontal connector for multiple children/parents
+            const createHorizontalConnector = () => {
+                const div = document.createElement('div');
+                div.className = 'horizontal-line';
+                return div;
+            };
+
+            // Helper to create a junction dot
+            const createJunction = () => {
+                const div = document.createElement('div');
+                div.className = 'junction';
+                return div;
+            };
+
+            // --- Level 0: Grandparents ---
+            const grandparentsLevel = createLevel('grandparents');
+            const paternalGrandfather = selectedPerson.fatherId ? findPersonById(findPersonById(selectedPerson.fatherId)?.fatherId) : null;
+            const paternalGrandmother = selectedPerson.fatherId ? findPersonById(findPersonById(selectedPerson.fatherId)?.motherId) : null;
+            const maternalGrandfather = selectedPerson.motherId ? findPersonById(findPersonById(selectedPerson.motherId)?.fatherId) : null;
+            const maternalGrandmother = selectedPerson.motherId ? findPersonById(findPersonById(selectedPerson.motherId)?.motherId) : null;
+
+            const gpNodes = [paternalGrandfather, paternalGrandmother, maternalGrandfather, maternalGrandmother].filter(Boolean);
+            if (gpNodes.length > 0) {
+                gpNodes.forEach(gp => grandparentsLevel.appendChild(createNode(gp)));
+                familyChartDisplay.appendChild(grandparentsLevel);
+                familyChartDisplay.appendChild(createVerticalConnector()); // Line down to parents
+            }
+
+            // --- Level 1: Parents ---
+            const parentsLevel = createLevel('parents');
+            const father = selectedPerson.fatherId ? findPersonById(selectedPerson.fatherId) : null;
+            const mother = selectedPerson.motherId ? findPersonById(selectedPerson.motherId) : null;
+            
+            const parentNodes = [father, mother].filter(Boolean);
+            if (parentNodes.length > 0) {
+                parentNodes.forEach(p => parentsLevel.appendChild(createNode(p)));
+                familyChartDisplay.appendChild(parentsLevel);
+                familyChartDisplay.appendChild(createVerticalConnector()); // Line down to selected person
+            }
+
+            // --- Level 2: Selected Person and Spouses ---
+            const selectedPersonLevel = createLevel('selected-person');
+            selectedPersonLevel.appendChild(createNode(selectedPerson, true));
+            
+            const spouses = [
+                selectedPerson.spouse1Id, selectedPerson.spouse2Id,
+                selectedPerson.spouse3Id, selectedPerson.spouse4Id
+            ].filter(Boolean).map(id => findPersonById(id)).filter(Boolean);
+
+            if (spouses.length > 0) {
+                spouses.forEach(spouse => {
+                    const spouseLine = document.createElement('div');
+                    spouseLine.className = 'spouse-line';
+                    selectedPersonLevel.appendChild(spouseLine);
+                    selectedPersonLevel.appendChild(createNode(spouse));
+                });
+            }
+            familyChartDisplay.appendChild(selectedPersonLevel);
+
+            // --- Level 3: Children ---
+            const children = familyData.filter(p => p.fatherId === selectedPerson.id || p.motherId === selectedPerson.id);
+            if (children.length > 0) {
+                familyChartDisplay.appendChild(createVerticalConnector()); // Line down to children
+                const childrenLevel = createLevel('children');
+                children.forEach(child => childrenLevel.appendChild(createNode(child)));
+                familyChartDisplay.appendChild(childrenLevel);
+
+                // --- Level 4: Grandchildren ---
+                const grandchildrenLevel = createLevel('grandchildren');
+                let hasGrandchildren = false;
+                children.forEach(child => {
+                    const grandChildren = familyData.filter(p => p.fatherId === child.id || p.motherId === child.id);
+                    if (grandChildren.length > 0) {
+                        hasGrandchildren = true;
+                        grandChildren.forEach(gc => grandchildrenLevel.appendChild(createNode(gc)));
+                    }
+                });
+                if (hasGrandchildren) {
+                    familyChartDisplay.appendChild(createVerticalConnector()); // Line down to grandchildren
+                    familyChartDisplay.appendChild(grandchildrenLevel);
+                }
+            }
+        }
+
+
+        // --- Tab Switching Logic ---
+
+        function showTab(tabId) {
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            document.getElementById(tabId).classList.remove('hidden');
+            document.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
+
+            // Re-render tables/charts when their tab is shown to ensure data is fresh
+            if (tabId === 'manage-tab') {
+                renderFamilyTable();
+            } else if (tabId === 'data-tab') {
+                renderDataTable();
+            } else if (tabId === 'chart-tab') {
+                renderFamilyChart(chartPersonSelect.value);
+            }
+        }
+
+        // --- Event Listeners ---
+
+        loginBtn.addEventListener('click', handleLogin);
+        logoutBtn.addEventListener('click', handleLogout);
+        exportDataBtn.addEventListener('click', exportFamilyData);
+        importDataBtn.addEventListener('click', () => importFileInput.click()); // Trigger file input click
+        importFileInput.addEventListener('change', importFamilyData); // Handle file selection
+
+        tabsContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('tab-button')) {
+                showTab(event.target.dataset.tab);
+            }
+        });
+
+        memberForm.addEventListener('submit', addOrUpdatePerson);
+        cancelEditBtn.addEventListener('click', clearForm);
+
+        chartPersonSelect.addEventListener('change', (event) => {
+            renderFamilyChart(event.target.value);
+        });
+
+        // Setup all autocomplete fields
+        setupAutocomplete(autocompleteInputs.father.name, autocompleteInputs.father.id, autocompleteInputs.father.list, 'مرد');
+        setupAutocomplete(autocompleteInputs.mother.name, autocompleteInputs.mother.id, autocompleteInputs.mother.list, 'زن');
+        setupAutocomplete(autocompleteInputs.spouse1.name, autocompleteInputs.spouse1.id, autocompleteInputs.spouse1.list);
+        setupAutocomplete(autocompleteInputs.spouse2.name, autocompleteInputs.spouse2.id, autocompleteInputs.spouse2.list);
+        setupAutocomplete(autocompleteInputs.spouse3.name, autocompleteInputs.spouse3.id, autocompleteInputs.spouse3.list);
+        setupAutocomplete(autocompleteInputs.spouse4.name, autocompleteInputs.spouse4.id, autocompleteInputs.spouse4.list);
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initially show login page
+            loginPage.classList.remove('hidden');
+            mainApp.classList.add('hidden');
+            // No data loaded until login
+        });
+    </script>
+</body>
+</html>
