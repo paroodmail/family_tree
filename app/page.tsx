@@ -10,12 +10,14 @@ import { FamilyProvider } from "@/context/FamilyContext"
 import { SignOutButton } from "@/components/sign-out-button"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { useFeatureGate } from "statsig-react" // Re-import useFeatureGate
+import { useFeatureGate } from "statsig-react"
 import { useAuth } from "@/context/AuthContext"
+import { useStatsigConfig } from "@/context/StatsigConfigContext" // Import the new hook
 
 export default function FamilyTreeSystem() {
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
+  const { featureGateKey } = useStatsigConfig() // Get featureGateKey from context
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
@@ -23,9 +25,9 @@ export default function FamilyTreeSystem() {
   }, [])
 
   const userRole = user?.role || "logged_out"
-  // Use useFeatureGate directly, as StatsigProvider is now correctly set up by StatsigWrapper
+  // Use useFeatureGate with the key from context
   const { value: adminTabsEnabled, isLoading: isLoadingStatsig } = useFeatureGate(
-    process.env.NEXT_PUBLIC_EXPERIMENTATION_CONFIG_ITEM_KEY || "admin_tabs_enabled",
+    featureGateKey || "admin_tabs_enabled", // Use the key from context, fallback to default
     { custom: { userRole: userRole } },
   )
 

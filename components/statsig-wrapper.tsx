@@ -6,8 +6,8 @@ interface StatsigWrapperProps {
 }
 
 export default function StatsigWrapper({ children }: StatsigWrapperProps) {
-  // Read the client key on the server
-  const clientKey = process.env.NEXT_PUBLIC_STATSIG_CLIENT_KEY
+  // این کامپوننت سرور است؛ فقط کلید فیچرگیت را ارسال می‌کنیم.
+  const featureGateKey = process.env.NEXT_PUBLIC_EXPERIMENTATION_CONFIG_ITEM_KEY
 
-  return <StatsigClientProvider clientKey={clientKey}>{children}</StatsigClientProvider>
+  return <StatsigClientProvider featureGateKey={featureGateKey}>{children}</StatsigClientProvider>
 }
