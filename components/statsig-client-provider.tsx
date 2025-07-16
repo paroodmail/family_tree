@@ -4,6 +4,7 @@
 import { useEffect, useState, type ReactNode } from "react"
 import { StatsigProvider } from "statsig-react"
 import { StatsigConfigProvider } from "@/context/StatsigConfigContext"
+import { useAuth } from "@/context/AuthContext" // Import useAuth
 
 interface StatsigClientProviderProps {
   children: ReactNode
@@ -11,7 +12,9 @@ interface StatsigClientProviderProps {
 }
 
 export function StatsigClientProvider({ children, featureGateKey }: StatsigClientProviderProps) {
+  const { user, isLoading: authLoading } = useAuth() // Get user and loading state from AuthContext
   const [sdkKey, setSdkKey] = useState<string | null>(null)
+  const [isStatsigReady, setIsStatsigReady] = useState(false)
 
   useEffect(() => {
     async function fetchKey() {
@@ -27,17 +30,34 @@ export function StatsigClientProvider({ children, featureGateKey }: StatsigClien
     fetchKey()
   }, [])
 
-  // ➊ همیشه ابتدا StatsigConfigProvider را رندر می‌کنیم
-  // ➋ سپس در صورت آماده بودن sdkKey، StatsigProvider را دور آن می‌پیچیم
+  // Wait for both SDK key and auth data to be ready
+  useEffect(() => {
+    if (sdkKey && !authLoading) {
+      setIsStatsigReady(true)
+    } else {
+      setIsStatsigReady(false)
+    }
+  }, [sdkKey, authLoading])
+
+  // Prepare Statsig user object
+  const statsigUser = user
+    ? {
+        userID: user.username, // Use username as userID
+        custom: {
+          userRole: user.role, // Pass user role as a custom property
+        },
+      }
+    : { userID: "logged_out", custom: { userRole: "logged_out" } } // Default for logged out users
+
   const content = <StatsigConfigProvider featureGateKey={featureGateKey}>{children}</StatsigConfigProvider>
 
-  if (!sdkKey) {
-    // هنوز کلید آماده نیست؛ فقط Content (با Provider) را برمی‌گردانیم
+  if (!isStatsigReady || !sdkKey) {
+    // Render content without StatsigProvider if not ready
     return content
   }
 
   return (
-    <StatsigProvider sdkKey={sdkKey} user={{ userID: "a-user-id" }}>
+    <StatsigProvider sdkKey={sdkKey} user={statsigUser}>
       {content}
     </StatsigProvider>
   )
