@@ -1,10 +1,12 @@
+import "server-only" // Mark this module as server-only
+
 /**
  * EdgeDB client helper
  * --------------------
  * In a **Node.js** (server / local scripts) environment we can use the
  * native binary protocol via `createClient()`.
  *
- * In a **browser / edge-runtime** (used by the next-lite preview) the TCP
+ * In a **browser / edge-runtime** (used by the Next.js preview) the TCP
  * driver is not available.  EdgeDB provides a fallback HTTP driver via
  * `createHttpClient()` which works fine for read / write queries.
  *

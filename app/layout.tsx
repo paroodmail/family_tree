@@ -5,7 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/context/AuthContext"
-import { StatsigClientProvider } from "@/components/statsig-client-provider"
+import StatsigWrapper from "@/components/statsig-wrapper" // Import the StatsigWrapper
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -24,9 +24,11 @@ export default function RootLayout({
     <html lang="fa" dir="rtl" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <StatsigClientProvider>
+          <StatsigWrapper>
+            {" "}
+            {/* Use StatsigWrapper here */}
             <AuthProvider>{children}</AuthProvider>
-          </StatsigClientProvider>
+          </StatsigWrapper>
           <Toaster />
         </ThemeProvider>
       </body>

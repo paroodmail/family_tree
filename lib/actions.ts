@@ -52,7 +52,7 @@ export async function getFamilyData(): Promise<Person[]> {
 export async function addPerson(person: Omit<Person, "id">): Promise<{ success: boolean; message: string }> {
   try {
     // Generate a new ID (sequential string, similar to previous logic)
-    const maxIdResult = await edgedb.querySingle(`select max(to_int64(.id)) from Person;`)
+    const maxIdResult = await edgedb.querySingle("select max(to_int64(Person.id));")
     const newId = ((maxIdResult || 0) + 1).toString()
 
     const query = `
@@ -236,5 +236,93 @@ export async function deletePerson(id: string): Promise<{ success: boolean; mess
   } catch (error: any) {
     console.error("Error deleting person from EdgeDB:", error)
     return { success: false, message: `خطا در حذف عضو: ${error.message || String(error)}` }
+  }
+}
+
+// New action for importing multiple members
+export async function importMembers(
+  peopleData: {
+    ID: string
+    FullName: string
+    Gender: "مرد" | "زن"
+    FatherID?: string
+    MotherID?: string
+    Spouse1_ID?: string
+    Spouse2_ID?: string
+    Spouse3_ID?: string
+    Spouse4_ID?: string
+    BirthYear?: string
+  }[],
+): Promise<{ success: boolean; message: string; importedCount: number; errorCount: number }> {
+  let importedCount = 0
+  let errorCount = 0
+  const errors: string[] = []
+
+  // Fetch existing IDs to determine if we need to add or update
+  const existingPeople = await edgedb.query(`select Person { id };`)
+  const existingIds = new Set(existingPeople.map((p) => p.id))
+
+  // Determine the maximum existing ID for new ID generation
+  const maxIdResult = await edgedb.querySingle("select max(to_int64(Person.id));")
+  let nextId = (maxIdResult || 0) + 1
+
+  for (const personData of peopleData) {
+    try {
+      let personId = personData.ID
+      let isUpdate = false
+
+      if (personId && existingIds.has(personId)) {
+        isUpdate = true
+      } else {
+        // Generate a new ID if not provided or already exists
+        personId = (nextId++).toString()
+      }
+
+      const personToProcess: Omit<Person, "id"> & { id?: string } = {
+        id: personId, // Temporarily include ID for internal processing
+        fullName: personData.FullName,
+        gender: personData.Gender,
+        fatherId: personData.FatherID || null,
+        motherId: personData.MotherID || null,
+        spouse1Id: personData.Spouse1_ID || null,
+        spouse2Id: personData.Spouse2_ID || null,
+        spouse3Id: personData.Spouse3_ID || null,
+        spouse4Id: personData.Spouse4_ID || null,
+        birthYear: personData.BirthYear ? Number.parseInt(personData.BirthYear) : null,
+      }
+
+      if (isUpdate) {
+        const result = await updatePerson(personId, personToProcess)
+        if (result.success) {
+          importedCount++
+        } else {
+          errorCount++
+          errors.push(`خطا در به‌روزرسانی ${personData.FullName} (ID: ${personData.ID}): ${result.message}`)
+        }
+      } else {
+        // Remove ID as addPerson expects Omit<Person, "id">
+        delete personToProcess.id
+        const result = await addPerson(personToProcess)
+        if (result.success) {
+          importedCount++
+          // Add newly generated ID to existingIds for subsequent imports in the same batch
+          existingIds.add(personId)
+        } else {
+          errorCount++
+          errors.push(`خطا در افزودن ${personData.FullName} (ID: ${personData.ID}): ${result.message}`)
+        }
+      }
+    } catch (error: any) {
+      errorCount++
+      errors.push(`خطا در پردازش ${personData.FullName} (ID: ${personData.ID}): ${error.message || String(error)}`)
+    }
+  }
+
+  revalidatePath("/") // Revalidate once after all operations
+  return {
+    success: errorCount === 0,
+    message: `عملیات وارد کردن به پایان رسید. ${importedCount} عضو با موفقیت وارد/به‌روزرسانی شد. ${errorCount} خطا وجود داشت.`,
+    importedCount,
+    errorCount,
   }
 }

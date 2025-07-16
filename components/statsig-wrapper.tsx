@@ -6,7 +6,7 @@ interface StatsigWrapperProps {
 }
 
 export default function StatsigWrapper({ children }: StatsigWrapperProps) {
-  // در server component، مقدار CLIENT_KEY را بگیر
+  // Read the client key on the server
   const clientKey = process.env.NEXT_PUBLIC_STATSIG_CLIENT_KEY
 
   return <StatsigClientProvider clientKey={clientKey}>{children}</StatsigClientProvider>

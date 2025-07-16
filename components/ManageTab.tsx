@@ -6,14 +6,17 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { UserPlus, Edit, Trash2, Save, X } from "lucide-react"
+import { UserPlus, Edit, Trash2, Save, X, FileUp } from "lucide-react" // Add FileUp icon
 import { useFamilyContext, type Person } from "../context/FamilyContext"
 import { useToast } from "@/hooks/use-toast" // Assuming you have shadcn/ui toast setup
+import ImportMembersDialog from "./import-members-dialog" // Import the new dialog
 
 export default function ManageTab({ isAdmin }: { isAdmin: boolean }) {
-  const { familyData, addPerson, updatePerson, deletePerson, findPersonById, loading, error } = useFamilyContext()
+  const { familyData, addPerson, updatePerson, deletePerson, findPersonById, loading, error, refreshFamilyData } =
+    useFamilyContext()
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingPersonId, setEditingPersonId] = useState<string | null>(null)
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false) // State for import dialog
   const { toast } = useToast()
 
   const [newPerson, setNewPerson] = useState({
@@ -201,14 +204,19 @@ export default function ManageTab({ isAdmin }: { isAdmin: boolean }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="mb-4"
-            variant={showAddForm ? "destructive" : "default"}
-            disabled={!isAdmin && showAddForm} // غیرفعال کردن دکمه لغو اگر کاربر ادمین نیست و فرم باز است
-          >
-            {showAddForm ? "لغو" : "اضافه کردن عضو جدید"}
-          </Button>
+          <div className="flex gap-4 mb-4">
+            <Button
+              onClick={() => setShowAddForm(!showAddForm)}
+              variant={showAddForm ? "destructive" : "default"}
+              disabled={!isAdmin && showAddForm}
+            >
+              {showAddForm ? "لغو" : "اضافه کردن عضو جدید"}
+            </Button>
+            <Button onClick={() => setIsImportDialogOpen(true)} disabled={!isAdmin}>
+              <FileUp className="w-4 h-4 mr-2" />
+              وارد کردن از اکسل (CSV)
+            </Button>
+          </div>
 
           {showAddForm && (
             <>
@@ -620,6 +628,15 @@ export default function ManageTab({ isAdmin }: { isAdmin: boolean }) {
           </div>
         </CardContent>
       </Card>
+
+      <ImportMembersDialog
+        isOpen={isImportDialogOpen}
+        onClose={() => {
+          setIsImportDialogOpen(false)
+          refreshFamilyData() // Refresh data after import attempt
+        }}
+        isAdmin={isAdmin}
+      />
     </div>
   )
 }
