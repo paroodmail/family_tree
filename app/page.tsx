@@ -10,36 +10,21 @@ import { FamilyProvider } from "@/context/FamilyContext"
 import { SignOutButton } from "@/components/sign-out-button"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { useFeatureGate } from "statsig-react"
 import { useAuth } from "@/context/AuthContext"
 
 export default function FamilyTreeSystem() {
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
   const [isClient, setIsClient] = useState(false)
-  const [adminTabsEnabled, setAdminTabsEnabled] = useState(true)
-  const [isLoadingStatsig, setIsLoadingStatsig] = useState(false)
 
   useEffect(() => {
     setIsClient(true)
   }, [])
 
-  const userRole = user?.role || "logged_out"
+  // همیشه admin tabs را فعال کن برای کاربران وارد شده
+  const adminTabsEnabled = true
 
-  useEffect(() => {
-    try {
-      const featureGate = useFeatureGate("admin_tabs_enabled", { custom: { userRole: userRole } })
-      setAdminTabsEnabled(featureGate.value)
-      setIsLoadingStatsig(featureGate.isLoading)
-    } catch (error) {
-      // اگر Statsig در دسترس نبود، از مقدار پیش‌فرض استفاده کن
-      console.warn("Statsig not available, using default feature gate values")
-      setAdminTabsEnabled(true)
-      setIsLoadingStatsig(false)
-    }
-  }, [userRole])
-
-  if (!isClient || authLoading || isLoadingStatsig) {
+  if (!isClient || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <p className="text-xl text-gray-700">در حال بارگذاری...</p>
@@ -48,7 +33,17 @@ export default function FamilyTreeSystem() {
   }
 
   const isLoggedIn = !!user
-  const isAdmin = userRole === "admin"
+  const isAdmin = user?.role === "admin"
+
+  // اگر کاربر وارد نشده، به صفحه لاگین هدایت کن
+  if (!isLoggedIn) {
+    router.push("/login")
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <p className="text-xl text-gray-700">در حال هدایت به صفحه ورود...</p>
+      </div>
+    )
+  }
 
   return (
     <FamilyProvider>
@@ -67,11 +62,13 @@ export default function FamilyTreeSystem() {
               <p className="text-gray-600 mt-2 text-base md:text-lg">
                 سیستم هوشمند یافتن روابط خانوادگی با امکانات کامل مدیریت اعضا
               </p>
-              {isLoggedIn && (
-                <div className="mt-4">
-                  <SignOutButton />
+              <div className="mt-4 flex items-center justify-center gap-4">
+                <div className="text-sm text-gray-600">
+                  وارد شده به عنوان: <span className="font-bold text-indigo-600">{user.username}</span>
+                  {isAdmin && <span className="text-green-600 mr-2">(ادمین)</span>}
                 </div>
-              )}
+                <SignOutButton />
+              </div>
             </CardHeader>
           </Card>
 
@@ -92,43 +89,20 @@ export default function FamilyTreeSystem() {
                 <BarChart3 className="w-5 h-5" />
                 نمودار خانواده
               </TabsTrigger>
-              {isLoggedIn && adminTabsEnabled ? (
-                <>
-                  <TabsTrigger
-                    value="manage"
-                    className="flex flex-col md:flex-row items-center gap-1 md:gap-2 text-base md:text-lg py-2 md:py-3 px-2 md:px-4 data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-200 rounded-lg"
-                  >
-                    <UserPlus className="w-5 h-5" />
-                    مدیریت اعضا
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="data"
-                    className="flex flex-col md:flex-row items-center gap-1 md:gap-2 text-base md:text-lg py-2 md:py-3 px-2 md:px-4 data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-200 rounded-lg"
-                  >
-                    <Database className="w-5 h-5" />
-                    بانک اطلاعات
-                  </TabsTrigger>
-                </>
-              ) : (
-                <>
-                  <TabsTrigger
-                    value="manage"
-                    className="flex flex-col md:flex-row items-center gap-1 md:gap-2 text-base md:text-lg py-2 md:py-3 px-2 md:px-4 text-gray-400 cursor-not-allowed"
-                    disabled
-                  >
-                    <UserPlus className="w-5 h-5" />
-                    مدیریت اعضا
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="data"
-                    className="flex flex-col md:flex-row items-center gap-1 md:gap-2 text-base md:text-lg py-2 md:py-3 px-2 md:px-4 text-gray-400 cursor-not-allowed"
-                    disabled
-                  >
-                    <Database className="w-5 h-5" />
-                    بانک اطلاعات
-                  </TabsTrigger>
-                </>
-              )}
+              <TabsTrigger
+                value="manage"
+                className="flex flex-col md:flex-row items-center gap-1 md:gap-2 text-base md:text-lg py-2 md:py-3 px-2 md:px-4 data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-200 rounded-lg"
+              >
+                <UserPlus className="w-5 h-5" />
+                مدیریت اعضا
+              </TabsTrigger>
+              <TabsTrigger
+                value="data"
+                className="flex flex-col md:flex-row items-center gap-1 md:gap-2 text-base md:text-lg py-2 md:py-3 px-2 md:px-4 data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-200 rounded-lg"
+              >
+                <Database className="w-5 h-5" />
+                بانک اطلاعات
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="search" className="mt-6 flex-1 flex flex-col">
@@ -139,30 +113,13 @@ export default function FamilyTreeSystem() {
               <ChartTab />
             </TabsContent>
 
-            {isLoggedIn && adminTabsEnabled ? (
-              <>
-                <TabsContent value="manage" className="mt-6 flex-1 flex flex-col">
-                  <ManageTab isAdmin={isAdmin} />
-                </TabsContent>
+            <TabsContent value="manage" className="mt-6 flex-1 flex flex-col">
+              <ManageTab isAdmin={isAdmin} />
+            </TabsContent>
 
-                <TabsContent value="data" className="mt-6 flex-1 flex flex-col">
-                  <DataTab isAdmin={isAdmin} />
-                </TabsContent>
-              </>
-            ) : (
-              <>
-                <TabsContent value="manage" className="mt-6 flex-1 flex flex-col">
-                  <Card className="p-6 text-center text-red-600">
-                    برای دسترسی به این بخش، لطفاً وارد شوید یا دسترسی لازم را ندارید.
-                  </Card>
-                </TabsContent>
-                <TabsContent value="data" className="mt-6 flex-1 flex flex-col">
-                  <Card className="p-6 text-center text-red-600">
-                    برای دسترسی به این بخش، لطفاً وارد شوید یا دسترسی لازم را ندارید.
-                  </Card>
-                </TabsContent>
-              </>
-            )}
+            <TabsContent value="data" className="mt-6 flex-1 flex flex-col">
+              <DataTab isAdmin={isAdmin} />
+            </TabsContent>
           </Tabs>
         </div>
       </div>

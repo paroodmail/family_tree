@@ -45,7 +45,7 @@ export async function getFamilyData(): Promise<Person[]> {
       return [] // بدون کرش، دیتای خالی برمی‌گردانیم
     }
     console.error("Error fetching family data from EdgeDB:", error)
-    throw new Error("خطا در بارگذاری اطلاعات خانواده از پایگاه داده.")
+    throw new Error(`خطا در بارگذاری اطلاعات خانواده از پایگاه داده: ${error.message || String(error)}`)
   }
 }
 
@@ -102,9 +102,9 @@ export async function addPerson(person: Omit<Person, "id">): Promise<{ success: 
 
     revalidatePath("/")
     return { success: true, message: "عضو جدید با موفقیت اضافه شد." }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error adding person to EdgeDB:", error)
-    return { success: false, message: "خطا در افزودن عضو جدید." }
+    return { success: false, message: `خطا در افزودن عضو جدید: ${error.message || String(error)}` }
   }
 }
 
@@ -201,9 +201,9 @@ export async function updatePerson(
 
     revalidatePath("/")
     return { success: true, message: "اطلاعات با موفقیت به‌روزرسانی شد." }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating person in EdgeDB:", error)
-    return { success: false, message: "خطا در به‌روزرسانی اطلاعات عضو." }
+    return { success: false, message: `خطا در به‌روزرسانی اطلاعات عضو: ${error.message || String(error)}` }
   }
 }
 
@@ -233,8 +233,8 @@ export async function deletePerson(id: string): Promise<{ success: boolean; mess
 
     revalidatePath("/")
     return { success: true, message: "عضو با موفقیت حذف شد." }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting person from EdgeDB:", error)
-    return { success: false, message: "خطا در حذف عضو." }
+    return { success: false, message: `خطا در حذف عضو: ${error.message || String(error)}` }
   }
 }
